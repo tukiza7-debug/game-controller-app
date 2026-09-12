@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ScrcpyForAndroid</string>
+    <string name="app_name">Game Controller</string>
     <string name="app_title">Scrcpy For Android</string>
 
     <string name="label_server_ip">Remote Device IP address, For example: 192.168.0.73</string>
@@ -36,6 +36,7 @@
     <string name="power_off_wait">Sending power off command…</string>
     <string name="power_off_sent">Power off command sent to %1$s</string>
     <string name="action_share_log">Share log (email / WhatsApp / …)</string>
+    <string name="action_view_log">View Log</string>
     <string name="share_log_subject">Scrcpy log %1$s r%2$d</string>
     <string name="share_log_empty">Log is empty</string>
     <string name="appswitch_button">=</string>

@@ -2,6 +2,9 @@ package org.client.scrcpy;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.os.Handler;
+import android.os.Looper;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
@@ -342,6 +345,10 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
         if (shareLogButton != null) {
             shareLogButton.setOnClickListener(v -> shareSessionLog());
         }
+        Button viewLogButton = findViewById(R.id.button_view_log);
+        if (viewLogButton != null) {
+            viewLogButton.setOnClickListener(v -> showLiveLogPanel());
+        }
         Button adbShellButton = findViewById(R.id.button_adb_shell);
         if (adbShellButton != null) {
             adbShellButton.setOnClickListener(v -> {
@@ -449,6 +456,48 @@ public class MainActivity extends Activity implements Scrcpy.ServiceCallbacks, S
             }
         });
         listPopupWindow.show();
+    }
+
+    private void showLiveLogPanel() {
+        final TextView logText = new TextView(this);
+        logText.setTextIsSelectable(true);
+        logText.setTextColor(Color.parseColor("#00FF00"));
+        logText.setTextSize(11);
+        logText.setTypeface(android.graphics.Typeface.MONOSPACE);
+        logText.setPadding(24, 24, 24, 24);
+
+        final ScrollView scroll = new ScrollView(this);
+        scroll.addView(logText);
+        scroll.setBackgroundColor(Color.BLACK);
+
+        final Handler handler = new Handler(Looper.getMainLooper());
+        final boolean[] running = {true};
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Live Log")
+                .setView(scroll)
+                .setNegativeButton("Tutup", (d, w) -> running[0] = false)
+                .setPositiveButton("Share", (d, w) -> {
+                    running[0] = false;
+                    shareSessionLog();
+                })
+                .create();
+
+        Runnable refresh = new Runnable() {
+            @Override
+            public void run() {
+                if (!running[0]) {
+                    return;
+                }
+                String content = SessionLog.readAll();
+                logText.setText(content.isEmpty() ? "(log masih kosong)" : content);
+                scroll.post(() -> scroll.fullScroll(View.FOCUS_DOWN));
+                handler.postDelayed(this, 1000);
+            }
+        };
+        dialog.setOnDismissListener(d -> running[0] = false);
+        dialog.show();
+        handler.post(refresh);
     }
 
     private void shareSessionLog() {
